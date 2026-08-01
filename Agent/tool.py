@@ -22,3 +22,26 @@ def search(query: str) -> str:
             "hl": "zh-cn",  # 语言代码
         }
 
+        # 发送搜索请求（timeout 会传给 requests.get，单位为秒，避免请求长时间挂起）
+        client = SerpApiClient(params, timeout=15)
+        results = client.get_dict()
+
+        # 智能解析:优先寻找最直接的答案
+        if "answer_box_list" in results:
+            return "\n".join(results["answer_box_list"])
+        if "answer_box" in results and "answer" in results["answer_box"]:
+            return results["answer_box"]["answer"]
+        if "knowledge_graph" in results and "description" in results["knowledge_graph"]:
+            return results["knowledge_graph"]["description"]
+        if "organic_results" in results and results["organic_results"]:
+            # 如果没有直接答案，则返回前三个有机结果的摘要
+            snippets = [
+                f"[{i + 1}] {res.get('title', '')}\n{res.get('snippet', '')}"
+                for i, res in enumerate(results["organic_results"][:3])
+            ]
+            return "\n\n".join(snippets)
+
+        return f"对不起，没有找到关于 '{query}' 的信息。"
+
+    except Exception as e:
+        return f"搜索时发生错误: {e}"
