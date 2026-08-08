@@ -23,3 +23,28 @@ class ToolExecutor:
         """
         return self.tools.get(name, {}).get("func")
 
+    def getAvailableTools(self) -> str:
+        """
+        获取所有可用工具的格式化描述字符串。
+        """
+        return "\n".join([
+            f"- {name}: {info['description']}"
+            for name, info in self.tools.items()
+        ])
+
+    def getToolSchemas(self) -> list:
+        """
+        获取所有工具的 OpenAI 原生 function calling 工具 Schema 列表。
+        """
+        schemas = []
+        for name, info in self.tools.items():
+            parameters = info.get("parameters") or {"type": "object", "properties": {}}
+            schemas.append({
+                "type": "function",
+                "function": {
+                    "name": name,
+                    "description": info["description"],
+                    "parameters": parameters,
+                },
+            })
+        return schemas
