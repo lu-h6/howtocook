@@ -56,3 +56,31 @@ receptionist = SimpleAgent(
 )
 
 # 添加技术专家工具
+tech_tool = A2ATool(
+    agent_url="http://localhost:6000",
+    name="tech_expert",
+    description="技术专家，回答技术相关问题"
+)
+receptionist.add_tool(tech_tool)
+
+# 添加销售顾问工具
+sales_tool = A2ATool(
+    agent_url="http://localhost:6001",
+    name="sales_advisor",
+    description="销售顾问，回答价格、购买相关问题"
+)
+receptionist.add_tool(sales_tool)
+
+# 5. 处理客户咨询
+def handle_customer_query(query):
+    print(f"\n客户咨询：{query}")
+    print("=" * 50)
+    response = receptionist.run(query)
+    print(f"\n客服回复：{response}")
+    print("=" * 50)
+
+# 测试不同类型的问题
+if __name__ == "__main__":
+    handle_customer_query("你们的API如何调用？")
+    handle_customer_query("企业版的价格是多少？")
+    handle_customer_query("如何集成到我的Python项目中？")
